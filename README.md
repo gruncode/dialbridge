@@ -54,9 +54,25 @@ dependencies. What you review is what runs.
 
 ---
 
-## Setup
+## Installing
+
+Two halves — the phone app, then the browser extension. About five minutes.
 
 ### 1. The phone
+
+Download the APK from the [latest release](https://github.com/gruncode/browser-dial/releases/latest)
+and open it on your Android phone. It is not on Google Play, so Android will ask
+you to allow installs from your browser or file manager the first time. Android
+8 or newer.
+
+Then open **Browser Dial** and press **Generate pairing code**, followed by
+**Start listening**. Leave the code on screen — the browser needs it next.
+
+Most phones are aggressive about closing background apps, so also tap **Allow
+running in the background**, or the phone may miss calls after a while.
+
+<details>
+<summary>Prefer to build it yourself?</summary>
 
 ```bash
 cd android
@@ -64,33 +80,40 @@ cd android
 adb install app/build/outputs/apk/debug/app-debug.apk
 ```
 
-Open the app and choose a delivery route.
-
-- **Own connection** — press *Generate pairing code*, then *Start listening*.
-- **Google Play Services** — deploy [the relay](relay/README.md), put its
-  address in the app, then press *Generate pairing code*. This route needs a
-  Firebase project: drop your own `google-services.json` into `android/app/`
-  and rebuild. Without that file the app still builds and runs, with the
-  Firebase option inactive — that is the F-Droid build.
-
-Most phones are aggressive about background apps, so also tap *Allow running in
-the background*.
+</details>
 
 ### 2. The browser
 
-Chrome, Edge, or any Chromium browser:
+Chrome, Edge, or any Chromium browser. Firefox is not supported yet.
 
-1. Go to `chrome://extensions`
-2. Turn on **Developer mode**
-3. **Load unpacked** → select the `extension/` folder
+1. Download this repository — the green **Code** button, then **Download ZIP** —
+   and unzip it somewhere permanent. The extension is loaded from that folder,
+   so deleting it uninstalls the extension.
+2. Go to `chrome://extensions`
+3. Turn on **Developer mode**, top right
+4. Click **Load unpacked** and select the `extension` folder
 
-Open the popup, paste the pairing code from the phone, set your **country
-code** (digits only, e.g. `30` — needed for numbers written without a leading
-`+`), and press **Save**, then **Send a test**. The phone should show a
-notification for an obviously fake number.
+Open the extension's popup, paste the pairing code from the phone, and set your
+**country code** — digits only, `30` for Greece, `44` for the UK. That is needed
+for numbers written without a leading `+`.
 
-The pairing code carries your encryption key. Treat it like a password, and
-generate a new one to revoke a computer's access.
+Press **Save**, then **Send a test**. Your phone should show a notification for
+an obviously fake number. If it does, you are done.
+
+The pairing code contains your encryption key, so treat it like a password.
+Generating a new one on the phone immediately revokes a computer's access.
+
+<details>
+<summary>Advanced: the Google Play Services route</summary>
+
+The app defaults to holding its own connection, which needs no server. The
+alternative borrows the connection Google Play Services already maintains,
+which is easier on the battery but requires a Firebase project and a small
+relay of your own — see [relay/README.md](relay/README.md). Drop your
+`google-services.json` into `android/app/` and rebuild; without it the app
+still works, with that option inactive.
+
+</details>
 
 ---
 
