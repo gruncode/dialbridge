@@ -1,5 +1,7 @@
 # DialBridge
 
+[![Build and test](https://github.com/gruncode/dialbridge/actions/workflows/build.yml/badge.svg)](https://github.com/gruncode/dialbridge/actions/workflows/build.yml)
+
 Click a phone number in your computer's browser; your Android phone opens its
 dialer with that number ready to call.
 
