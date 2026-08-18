@@ -1,0 +1,77 @@
+name: Build and test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  android:
+    name: Android build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v3
+
+      # No google-services.json here, which is the point: this proves the FOSS
+      # build — the one that can ship on F-Droid — compiles with Firebase
+      # inert, exactly as a contributor without a Firebase project would get.
+      - name: Build the APK
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon
+
+  extension:
+    name: Extension tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Phone-number recogniser tests
+        run: node extension/test/phone.test.js
+
+      - name: Check every script parses
+        run: |
+          for f in extension/src/*.js relay/index.js; do
+            node --check "$f"
+          done
+
+  interop:
+    name: Crypto interoperability
+    runs-on: ubuntu-latest
+    # The browser and the phone are separate implementations of AES-GCM that
+    # must agree on the wire format exactly. If they ever drift, the app
+    # silently drops every message — so the agreement is asserted here rather
+    # than assumed.
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Encrypt in JavaScript, decrypt on the JVM
+        working-directory: tools/crypto-interop
+        run: |
+          OUT=$(node encrypt.js)
+          KEY=$(echo "$OUT" | sed -n 1p)
+          CIPHERTEXT=$(echo "$OUT" | sed -n 2p)
+          javac Decrypt.java
+          RESULT=$(java Decrypt "$KEY" "$CIPHERTEXT")
+          echo "$RESULT"
+          echo "$RESULT" | grep -q "decrypted: +15555550123" \
+            || { echo "::error::JVM did not decrypt the browser's ciphertext"; exit 1; }
+          echo "$RESULT" | grep -q "forged message rejected" \
+            || { echo "::error::a tampered message was accepted"; exit 1; }
