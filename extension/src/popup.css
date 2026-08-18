@@ -1,0 +1,109 @@
+:root {
+  color-scheme: light dark;
+  --fg: #1a1a1a;
+  --muted: #666;
+  --bg: #ffffff;
+  --line: #d4d4d4;
+  --accent: #15803d;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fg: #ededed;
+    --muted: #a3a3a3;
+    --bg: #1f1f1f;
+    --line: #3f3f3f;
+    --accent: #22c55e;
+  }
+}
+
+body {
+  width: 300px;
+  margin: 0;
+  padding: 14px;
+  background: var(--bg);
+  color: var(--fg);
+  font: 13px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+h1 {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+label {
+  display: block;
+  margin-top: 10px;
+  font-weight: 500;
+}
+
+label.checkbox {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-weight: 400;
+  margin-top: 12px;
+}
+
+input[type="text"],
+input[type="url"],
+input[type="password"] {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 4px;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--bg);
+  color: var(--fg);
+  font: inherit;
+}
+
+.hint {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+details {
+  margin-top: 12px;
+  border-top: 1px solid var(--line);
+  padding-top: 8px;
+}
+
+summary {
+  cursor: pointer;
+  color: var(--muted);
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+button {
+  flex: 1;
+  padding: 7px 10px;
+  border: 0;
+  border-radius: 5px;
+  background: var(--accent);
+  color: #fff;
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+button.secondary {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--fg);
+}
+
+#status {
+  margin: 10px 0 0;
+  min-height: 1.4em;
+  font-size: 12px;
+  color: var(--muted);
+}

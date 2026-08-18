@@ -1,0 +1,20 @@
+/* Marking must be visible enough to invite a click and quiet enough that it
+   does not vandalise the page it is injected into. A dotted underline reads as
+   "interactive" without changing layout or colour of the surrounding text. */
+
+.dialbridge-number {
+  cursor: pointer;
+  border-bottom: 1px dotted currentColor;
+  /* Inherit everything else, so the number keeps the page's own typography. */
+}
+
+.dialbridge-number:hover {
+  background-color: rgba(21, 128, 61, 0.12);
+}
+
+/* Acknowledgement after a click, removed again by the content script. */
+.dialbridge-number.dialbridge-sent,
+a[href^="tel:"].dialbridge-sent {
+  background-color: rgba(21, 128, 61, 0.28);
+  transition: background-color 0.2s ease-out;
+}

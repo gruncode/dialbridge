@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "DialBridge",
+  "version": "1.0.0",
+  "description": "Click a phone number on your computer and your Android phone opens its dialer with that number ready to call.",
+  "permissions": ["storage", "contextMenus"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "src/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/phone.js", "src/content.js"],
+      "css": ["src/content.css"],
+      "run_at": "document_idle",
+      "all_frames": true
+    }
+  ],
+  "action": {
+    "default_popup": "src/popup.html",
+    "default_title": "DialBridge"
+  },
+  "icons": {
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

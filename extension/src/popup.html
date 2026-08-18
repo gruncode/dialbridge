@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>DialBridge</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <h1>DialBridge</h1>
+
+    <label for="topic">Topic</label>
+    <input id="topic" type="text" placeholder="from the phone app" autocomplete="off" />
+    <p class="hint">The phone app shows this. Both sides must use the same value.</p>
+
+    <label for="countryCode">Country code</label>
+    <input id="countryCode" type="text" inputmode="numeric" placeholder="30" />
+    <p class="hint">Digits only. Used for numbers written without a leading +.</p>
+
+    <details>
+      <summary>Advanced</summary>
+
+      <label for="server">Server</label>
+      <input id="server" type="url" placeholder="https://ntfy.sh" />
+      <p class="hint">Change this if you run your own ntfy server.</p>
+
+      <label for="authToken">Access token</label>
+      <input id="authToken" type="password" placeholder="optional" autocomplete="off" />
+      <p class="hint">Only needed on servers that require authentication.</p>
+    </details>
+
+    <label class="checkbox">
+      <input id="markPlainText" type="checkbox" />
+      Underline phone numbers written as plain text
+    </label>
+
+    <label class="checkbox">
+      <input id="enabled" type="checkbox" />
+      Enabled
+    </label>
+
+    <div class="row">
+      <button id="save" type="button">Save</button>
+      <button id="test" type="button" class="secondary">Send a test</button>
+    </div>
+
+    <p id="status" role="status"></p>
+
+    <script src="phone.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>

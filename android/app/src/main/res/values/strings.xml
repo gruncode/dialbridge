@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">DialBridge</string>
+
+    <string name="intro">Click a phone number in your computer\'s browser and this phone opens its dialer with the number ready. Enter the same topic here and in the browser extension.</string>
+
+    <string name="label_topic">Topic</string>
+    <string name="hint_topic">tap Generate</string>
+    <string name="hint_topic_explain">A private channel name shared with the browser extension. Anyone who knows it can make this phone ring, so keep it to yourself.</string>
+
+    <string name="label_server">Server</string>
+    <string name="hint_server">https://ntfy.sh</string>
+
+    <string name="label_token">Access token</string>
+    <string name="hint_token">optional</string>
+
+    <string name="action_generate">Generate</string>
+    <string name="action_copy">Copy</string>
+    <string name="action_start">Start listening</string>
+    <string name="action_stop">Stop listening</string>
+    <string name="action_battery">Allow running in the background</string>
+    <string name="action_open_dialer">Open dialer</string>
+
+    <string name="battery_explain">Android may stop the app to save power. Exempting it keeps calls arriving reliably.</string>
+
+    <string name="status_listening">Listening for calls</string>
+    <string name="status_reconnecting">Reconnecting…</string>
+    <string name="status_stopped">Not listening</string>
+    <string name="status_needs_topic">Generate a topic first</string>
+
+    <string name="dial_request_title">Call this number</string>
+
+    <string name="channel_calls">Dial requests</string>
+    <string name="channel_calls_description">Shown when your computer sends a number to this phone</string>
+    <string name="channel_service">Subscription status</string>
+    <string name="channel_service_description">The quiet notice that the app is listening</string>
+
+    <string name="copied">Topic copied</string>
+    <string name="saved">Saved</string>
+</resources>

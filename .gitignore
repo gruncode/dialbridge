@@ -1,0 +1,18 @@
+# Android build output and machine-specific paths
+android/build/
+android/app/build/
+android/.gradle/
+android/local.properties
+*.apk
+*.aab
+*.keystore
+*.jks
+
+# Editors
+.idea/
+*.iml
+.vscode/
+
+# OS noise
+.DS_Store
+Thumbs.db
