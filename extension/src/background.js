@@ -77,7 +77,9 @@ async function dispatch(e164) {
   try {
     const payload = await DialBridgeCrypto.encryptNumber(pairing.k, e164);
 
-    if (pairing.t === "fcm") {
+    // Android-via-Firebase and iPhone-via-Apple both go through a relay and
+    // take the same request shape, so one branch serves both.
+    if (pairing.t === "fcm" || pairing.t === "apns") {
       await sendViaRelay(pairing, payload);
     } else {
       await sendViaNtfy(pairing, payload);

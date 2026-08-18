@@ -158,6 +158,19 @@ relay/                   optional; only for the Firebase transport
 
 ---
 
+## iPhone
+
+There is an iOS companion at
+[gruncode/dialbridge-ios](https://github.com/gruncode/dialbridge-ios). **The
+extension in this repository drives it too** — the pairing code format is
+shared, so switching phones changes nothing on the desktop.
+
+iOS cannot offer the own-connection transport: Apple permits no background
+sockets and no push outside its own service. The encryption carries over
+unchanged, so Apple routes ciphertext it cannot read.
+
+---
+
 ## Licence
 
 MIT — see [LICENSE](LICENSE).

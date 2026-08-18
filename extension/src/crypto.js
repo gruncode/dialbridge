@@ -53,7 +53,10 @@ const DialBridgeCrypto = (function () {
 
     if (parsed.v !== 1) throw new Error("Pairing code from a different version");
     if (!parsed.k) throw new Error("Pairing code carries no key");
-    if (parsed.t !== "ntfy" && parsed.t !== "fcm") {
+    // ntfy: the phone's own connection. fcm: Android via Google Play Services.
+    // apns: iPhone via Apple. The last two are both relay-delivered and so are
+    // identical from the browser's point of view.
+    if (["ntfy", "fcm", "apns"].indexOf(parsed.t) === -1) {
       throw new Error("Unknown transport in pairing code");
     }
     return parsed;

@@ -26,6 +26,9 @@
   /** Describe the current pairing without ever showing the key itself. */
   function describe(pairing) {
     if (!pairing) return "Not paired.";
+    if (pairing.t === "apns") {
+      return "Paired with an iPhone, via " + hostOf(pairing.r) + ". Encrypted.";
+    }
     if (pairing.t === "fcm") {
       return "Paired over Firebase, via " + hostOf(pairing.r) + ". Encrypted.";
     }
