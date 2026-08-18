@@ -1,4 +1,4 @@
-# DialBridge relay
+# Browser Dial relay
 
 Only needed for the **Firebase / Google Play Services** transport. If you use
 the app's own ntfy connection, there is no server and nothing here to run.
@@ -22,7 +22,7 @@ records only the *class* of a Firebase failure when one occurs.
 Google Cloud Functions (2nd gen):
 
 ```bash
-gcloud functions deploy dialbridge-relay \
+gcloud functions deploy browser-dial-relay \
   --gen2 --runtime=nodejs22 --region=europe-west1 \
   --source=. --entry-point=relay \
   --trigger-http --allow-unauthenticated \

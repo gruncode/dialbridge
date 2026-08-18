@@ -1,4 +1,4 @@
-package com.gruncode.dialbridge
+package com.gruncode.browserdial
 
 import android.app.NotificationChannel
 import android.app.NotificationManager

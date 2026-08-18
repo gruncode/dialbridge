@@ -13,7 +13,7 @@
 // browser, javax.crypto on Android, with identical wire format (the
 // authentication tag is appended to the ciphertext by both implementations).
 
-const DialBridgeCrypto = (function () {
+const BrowserDialCrypto = (function () {
   "use strict";
 
   const IV_BYTES = 12; // 96 bits, the size AES-GCM is designed around
@@ -41,7 +41,7 @@ const DialBridgeCrypto = (function () {
    * key correctly is asking for support requests.
    */
   function decodePairing(text) {
-    const trimmed = String(text || "").trim().replace(/^dialbridge:/i, "");
+    const trimmed = String(text || "").trim().replace(/^browser-?dial:/i, "");
     if (!trimmed) throw new Error("Empty pairing code");
 
     let parsed;
@@ -101,5 +101,5 @@ const DialBridgeCrypto = (function () {
 })();
 
 if (typeof module !== "undefined" && module.exports) {
-  module.exports = DialBridgeCrypto;
+  module.exports = BrowserDialCrypto;
 }

@@ -75,7 +75,7 @@ async function dispatch(e164) {
   }
 
   try {
-    const payload = await DialBridgeCrypto.encryptNumber(pairing.k, e164);
+    const payload = await BrowserDialCrypto.encryptNumber(pairing.k, e164);
 
     // Android-via-Firebase and iPhone-via-Apple both go through a relay and
     // take the same request shape, so one branch serves both.
@@ -107,16 +107,16 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 // see — inside a canvas, an image caption, or an unusual widget.
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
-    id: "dialbridge-selection",
+    id: "browser-dial-selection",
     title: "Send number to my phone",
     contexts: ["selection"]
   });
 });
 
 chrome.contextMenus.onClicked.addListener(async (info) => {
-  if (info.menuItemId !== "dialbridge-selection" || !info.selectionText) return;
+  if (info.menuItemId !== "browser-dial-selection" || !info.selectionText) return;
   const settings = await getSettings();
-  const e164 = DialBridgePhone.toE164(info.selectionText, settings.countryCode);
+  const e164 = BrowserDialPhone.toE164(info.selectionText, settings.countryCode);
   if (e164) {
     await dispatch(e164);
   } else {

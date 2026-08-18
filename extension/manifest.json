@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "DialBridge",
+  "name": "Browser Dial",
   "version": "1.0.0",
   "description": "Click a phone number on your computer and your Android phone opens its dialer with that number ready to call.",
   "permissions": ["storage", "contextMenus"],
@@ -19,7 +19,7 @@
   ],
   "action": {
     "default_popup": "src/popup.html",
-    "default_title": "DialBridge"
+    "default_title": "Browser Dial"
   },
   "icons": {
     "48": "icons/icon48.png",

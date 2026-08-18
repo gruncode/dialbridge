@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.gruncode.dialbridge"
+    namespace = "com.gruncode.browserdial"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.gruncode.dialbridge"
+        applicationId = "com.gruncode.browserdial"
         // API 26 is the floor because notification channels — which this app
         // depends on for its call alerts — arrived in Android 8.
         minSdk = 26

@@ -12,7 +12,7 @@
 (function () {
   "use strict";
 
-  var MARK_CLASS = "dialbridge-number";
+  var MARK_CLASS = "browser-dial-number";
 
   // Populated from storage before any marking happens.
   var settings = { countryCode: "", markPlainText: true, enabled: true };
@@ -50,10 +50,10 @@
 
     // Case 1: a number we marked up ourselves.
     var marked = target.closest("." + MARK_CLASS);
-    if (marked && marked.dataset && marked.dataset.dialbridgeNumber) {
+    if (marked && marked.dataset && marked.dataset.browserDialNumber) {
       event.preventDefault();
       event.stopPropagation();
-      send(marked.dataset.dialbridgeNumber);
+      send(marked.dataset.browserDialNumber);
       flash(marked);
       return;
     }
@@ -62,7 +62,7 @@
     var link = target.closest('a[href^="tel:"]');
     if (link) {
       var raw = decodeURIComponent(link.getAttribute("href").slice(4));
-      var e164 = DialBridgePhone.toE164(raw, settings.countryCode);
+      var e164 = BrowserDialPhone.toE164(raw, settings.countryCode);
       if (e164) {
         event.preventDefault();
         event.stopPropagation();
@@ -74,9 +74,9 @@
 
   /** Brief visual acknowledgement, so a click never feels ignored. */
   function flash(element) {
-    element.classList.add("dialbridge-sent");
+    element.classList.add("browser-dial-sent");
     setTimeout(function () {
-      element.classList.remove("dialbridge-sent");
+      element.classList.remove("browser-dial-sent");
     }, 900);
   }
 
@@ -90,7 +90,7 @@
     var text = node.nodeValue;
     if (!text || text.length < 9) return;
 
-    var hits = DialBridgePhone.findNumbers(text, settings.countryCode);
+    var hits = BrowserDialPhone.findNumbers(text, settings.countryCode);
     if (!hits.length) return;
 
     var fragment = document.createDocumentFragment();
@@ -104,7 +104,7 @@
       }
       var span = document.createElement("span");
       span.className = MARK_CLASS;
-      span.dataset.dialbridgeNumber = hit.e164;
+      span.dataset.browserDialNumber = hit.e164;
       span.title = "Send " + hit.e164 + " to your phone";
       span.textContent = hit.raw;
       fragment.appendChild(span);

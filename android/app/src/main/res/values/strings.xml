@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">DialBridge</string>
+    <string name="app_name">Browser Dial</string>
 
     <string name="intro">Click a phone number in your computer\'s browser and this phone opens its dialer with the number ready. Generate a pairing code below and paste it into the browser extension.</string>
 

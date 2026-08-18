@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "DialBridge"
+rootProject.name = "BrowserDial"
 include(":app")

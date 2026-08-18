@@ -1,4 +1,4 @@
-package com.gruncode.dialbridge
+package com.gruncode.browserdial
 
 import android.app.Service
 import android.content.Context
@@ -46,7 +46,7 @@ class SubscriberService : Service() {
 
         if (!running) {
             running = true
-            worker = thread(name = "dialbridge-subscriber") { listenForever() }
+            worker = thread(name = "browser-dial-subscriber") { listenForever() }
         }
 
         // START_STICKY: if the system reclaims the process under pressure, it
@@ -179,7 +179,7 @@ class SubscriberService : Service() {
     }
 
     companion object {
-        private const val TAG = "DialBridge"
+        private const val TAG = "BrowserDial"
 
         /** E.164: an optional plus, then 6 to 15 digits, and nothing else. */
         private val NUMBER_SHAPE = Regex("^\\+?[0-9]{6,15}$")

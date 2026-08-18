@@ -32,7 +32,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/Theme.DialBridge">
+        android:theme="@style/Theme.BrowserDial">
 
         <activity
             android:name=".MainActivity"

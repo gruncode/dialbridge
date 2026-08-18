@@ -1,11 +1,11 @@
 # Privacy and data protection
 
-DialBridge moves a phone number from a browser to a phone. A phone number
+Browser Dial moves a phone number from a browser to a phone. A phone number
 identifies a person, so it is personal data, and this document says exactly
 what happens to it.
 
 > This is an engineering description written to be accurate, not legal advice.
-> If you deploy DialBridge for an organisation, have a lawyer review your own
+> If you deploy Browser Dial for an organisation, have a lawyer review your own
 > circumstances.
 
 ---

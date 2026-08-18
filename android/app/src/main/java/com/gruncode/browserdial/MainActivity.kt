@@ -1,4 +1,4 @@
-package com.gruncode.dialbridge
+package com.gruncode.browserdial
 
 import android.Manifest
 import android.content.ClipData
@@ -17,7 +17,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.gruncode.dialbridge.databinding.ActivityMainBinding
+import com.gruncode.browserdial.databinding.ActivityMainBinding
 
 /**
  * The only screen. It hands the user a pairing code for the browser, lets them
@@ -152,7 +152,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
         val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        clipboard.setPrimaryClip(ClipData.newPlainText("DialBridge pairing", code))
+        clipboard.setPrimaryClip(ClipData.newPlainText("Browser Dial pairing", code))
         Toast.makeText(this, R.string.copied, Toast.LENGTH_SHORT).show()
     }
 

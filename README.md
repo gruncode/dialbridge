@@ -1,6 +1,6 @@
-# DialBridge
+# Browser Dial
 
-[![Build and test](https://github.com/gruncode/dialbridge/actions/workflows/build.yml/badge.svg)](https://github.com/gruncode/dialbridge/actions/workflows/build.yml)
+[![Build and test](https://github.com/gruncode/browser-dial/actions/workflows/build.yml/badge.svg)](https://github.com/gruncode/browser-dial/actions/workflows/build.yml)
 
 Click a phone number in your computer's browser; your Android phone opens its
 dialer with that number ready to call.
@@ -163,7 +163,7 @@ relay/                   optional; only for the Firebase transport
 ## iPhone
 
 There is an iOS companion at
-[gruncode/dialbridge-ios](https://github.com/gruncode/dialbridge-ios). **The
+[gruncode/browser-dial-ios](https://github.com/gruncode/browser-dial-ios). **The
 extension in this repository drives it too** — the pairing code format is
 shared, so switching phones changes nothing on the desktop.
 

@@ -1,4 +1,4 @@
-package com.gruncode.dialbridge
+package com.gruncode.browserdial
 
 import android.util.Log
 import com.google.firebase.messaging.FirebaseMessagingService
@@ -63,7 +63,7 @@ class PushService : FirebaseMessagingService() {
     }
 
     companion object {
-        private const val TAG = "DialBridge"
+        private const val TAG = "BrowserDial"
 
         /** E.164: an optional plus, then 6 to 15 digits, and nothing else. */
         private val NUMBER_SHAPE = Regex("^\\+?[0-9]{6,15}$")

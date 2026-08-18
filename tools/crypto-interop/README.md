@@ -23,7 +23,7 @@ single bit makes decryption fail loudly instead of producing plausible
 rubbish. That property is what lets the phone treat successful decryption as
 proof the message came from the paired browser.
 
-`Decrypt.java` mirrors `android/app/src/main/java/com/gruncode/dialbridge/Crypto.kt`.
+`Decrypt.java` mirrors `android/app/src/main/java/com/gruncode/browserdial/Crypto.kt`.
 It uses `java.util.Base64` where the app uses `android.util.Base64`, because
 Android's version is unavailable outside a device — the two produce identical
 base64url output.

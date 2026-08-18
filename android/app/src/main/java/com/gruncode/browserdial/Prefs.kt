@@ -1,4 +1,4 @@
-package com.gruncode.dialbridge
+package com.gruncode.browserdial
 
 import android.content.Context
 import org.json.JSONObject
@@ -14,7 +14,7 @@ import java.security.SecureRandom
  */
 object Prefs {
 
-    private const val FILE = "dialbridge"
+    private const val FILE = "browserdial"
     private const val KEY_SERVER = "server"
     private const val KEY_TOPIC = "topic"
     private const val KEY_TOKEN = "token"

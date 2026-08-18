@@ -9,7 +9,7 @@
 // Loaded as a classic script (Chrome content scripts cannot be ES modules), so
 // it publishes a single global rather than using export.
 
-var DialBridgePhone = (function () {
+var BrowserDialPhone = (function () {
   "use strict";
 
   // Characters people use to make numbers readable, plus the ones that survive
@@ -115,5 +115,5 @@ var DialBridgePhone = (function () {
 // Make the module usable from Node for the unit tests without affecting the
 // browser, where `module` does not exist.
 if (typeof module !== "undefined" && module.exports) {
-  module.exports = DialBridgePhone;
+  module.exports = BrowserDialPhone;
 }

@@ -65,7 +65,7 @@
     var typed = pairingField.value.trim();
     if (typed) {
       try {
-        values.pairing = DialBridgeCrypto.decodePairing(typed);
+        values.pairing = BrowserDialCrypto.decodePairing(typed);
       } catch (error) {
         say(error.message, true);
         return;
