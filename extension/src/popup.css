@@ -107,3 +107,32 @@ button.secondary {
   font-size: 12px;
   color: var(--muted);
 }
+
+textarea {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 4px;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--bg);
+  color: var(--fg);
+  font: inherit;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  resize: vertical;
+}
+
+.paired {
+  margin: 8px 0 0;
+  padding: 6px 8px;
+  border-radius: 5px;
+  background: rgba(21, 128, 61, 0.10);
+  font-size: 12px;
+}
+
+button.danger {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: #b91c1c;
+}

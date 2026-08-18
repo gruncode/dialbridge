@@ -3,9 +3,9 @@
 Click a phone number in your computer's browser; your Android phone opens its
 dialer with that number ready to call.
 
-No Google account, no Firebase, no cloud service of mine in the middle. The
-browser publishes to an [ntfy](https://ntfy.sh) topic and the phone is
-subscribed to it — that is the whole mechanism, and you can host it yourself.
+The number is **encrypted in the browser and decrypted on the phone**. Whatever
+carries it in between — a public message server, Google's push
+infrastructure — handles ciphertext it cannot read.
 
 ---
 
@@ -13,28 +13,39 @@ subscribed to it — that is the whole mechanism, and you can host it yourself.
 
 ```mermaid
 flowchart LR
-    A["Browser extension<br/>detects the number<br/>normalises to E.164"]
-    B["ntfy topic<br/>ntfy.sh or your own server"]
-    C["Android app<br/>holds an open HTTP stream"]
+    A["Browser extension<br/>detect · normalise to E.164<br/>encrypt (AES-256-GCM)"]
+
+    subgraph T["Choose one transport"]
+        B1["ntfy topic<br/>public or self-hosted"]
+        B2["relay → Firebase<br/>Google Play Services"]
+    end
+
+    C["Android app<br/>decrypt · verify"]
     D["System dialer<br/>number filled in, you press call"]
 
-    A -- "HTTPS POST" --> B
-    B -- "streamed event" --> C
+    A --> B1 --> C
+    A --> B2 --> C
     C -- "notification, you tap it" --> D
 ```
 
-Three deliberate choices shape the design:
+**Two transports, one app.** Pick per install:
 
-**No push service.** Most Android apps receive messages through Firebase Cloud
-Messaging, which requires Google Play Services on the device and Google's
-servers in the path — meaning the number you are about to call passes through
-them. DialBridge instead keeps its own connection open to a small, open-source
-message broker. It works on de-Googled phones, and it can be distributed
-through F-Droid.
+| | Own connection (ntfy) | Google Play Services (Firebase) |
+|---|---|---|
+| Battery | Holds a socket open | Borrows the system's existing connection |
+| Needs Play Services | No — works on de-Googled phones | Yes |
+| Needs a server of yours | No | Yes, a small relay |
+| Can ship on F-Droid | Yes | No |
+| Can ship on Google Play | Yes, but a permanent socket draws scrutiny | Yes, the expected design |
 
-**The app never places a call.** It fills in the number and stops. That is why
-it requests no `CALL_PHONE` permission: the decision to dial always stays with
-the person holding the phone.
+**The encryption is what makes that choice free of consequence.** Under either
+route the carrier sees a blob. The key is generated on the phone, travels once
+inside the pairing code you copy across yourself, and is never transmitted
+again.
+
+**The app never places a call.** It fills in the number and stops, which is why
+it requests no `CALL_PHONE` permission — the decision to dial stays with the
+person holding the phone.
 
 **No build step for the extension.** Plain JavaScript, no bundler, no
 dependencies. What you review is what runs.
@@ -45,18 +56,23 @@ dependencies. What you review is what runs.
 
 ### 1. The phone
 
-Build the app, or install a release APK:
-
 ```bash
 cd android
 ./gradlew assembleDebug
 adb install app/build/outputs/apk/debug/app-debug.apk
 ```
 
-Open it, tap **Generate** to create a topic, then **Start listening**.
+Open the app and choose a delivery route.
 
-If your phone is aggressive about background apps — most are — also tap
-**Allow running in the background**.
+- **Own connection** — press *Generate pairing code*, then *Start listening*.
+- **Google Play Services** — deploy [the relay](relay/README.md), put its
+  address in the app, then press *Generate pairing code*. This route needs a
+  Firebase project: drop your own `google-services.json` into `android/app/`
+  and rebuild. Without that file the app still builds and runs, with the
+  Firebase option inactive — that is the F-Droid build.
+
+Most phones are aggressive about background apps, so also tap *Allow running in
+the background*.
 
 ### 2. The browser
 
@@ -66,61 +82,53 @@ Chrome, Edge, or any Chromium browser:
 2. Turn on **Developer mode**
 3. **Load unpacked** → select the `extension/` folder
 
-Open the extension's popup and enter:
+Open the popup, paste the pairing code from the phone, set your **country
+code** (digits only, e.g. `30` — needed for numbers written without a leading
+`+`), and press **Save**, then **Send a test**. The phone should show a
+notification for an obviously fake number.
 
-- **Topic** — the same value the phone app shows
-- **Country code** — digits only, e.g. `30`. Needed for numbers written without
-  a leading `+`
-
-Press **Send a test**. Your phone should show a notification for a fake number.
+The pairing code carries your encryption key. Treat it like a password, and
+generate a new one to revoke a computer's access.
 
 ---
 
 ## Using it
 
-- **Click any `tel:` link.** No desktop "choose an application" dialog.
-- **Click an underlined number.** Numbers written as plain text are marked with
-  a dotted underline and become clickable.
+- **Click any `tel:` link** — no desktop "choose an application" dialog.
+- **Click an underlined number** — plain-text numbers are marked and clickable.
 - **Select a number and right-click** → *Send number to my phone*, for numbers
-  the page renders in some way the detector cannot see.
-
-On the phone, tap the notification and the dialer opens with the number in it.
+  the detector cannot see.
 
 ---
 
-## Security
+## Privacy
 
-The topic name is the only thing preventing a stranger from making your phone
-ring. It is generated from a cryptographic random source and is long enough
-that guessing it is not practical, but it is **not** a secret in the strong
-sense: it travels in the URL, and on the public `ntfy.sh` server the operator
-can see it.
+Read [PRIVACY.md](PRIVACY.md). In short: nothing is collected, nothing is
+stored beyond the pairing itself, there is no analytics and no account, and
+both sides have a real delete control rather than a paragraph promising one.
 
-For anything beyond convenience, run your own ntfy server and turn on access
-control. Both the app and the extension accept an access token, and the server
-field accepts any address:
-
-```bash
-docker run -p 80:80 -v /var/lib/ntfy:/var/lib/ntfy binwiederhier/ntfy serve
-```
-
-The phone also refuses anything that does not look like a phone number, so a
-stranger who did learn your topic could annoy you but could not use the
-notification to send arbitrary content.
+If you are an individual using this for yourself, GDPR's household exemption
+means none of its obligations attach to you. If you deploy it for an
+organisation, PRIVACY.md sets out what does.
 
 ---
 
 ## Trade-offs, stated plainly
 
-**Battery.** Holding your own connection costs more than sharing the one
-Google's push service already maintains. In practice ntfy sends a keepalive
-about every 45 seconds, which is modest, but it is not free.
+**Battery versus independence.** Holding your own connection costs more power
+than borrowing the one Play Services already maintains. ntfy's keepalive is
+about every 45 seconds, which is modest but not free. The Firebase route is
+cheaper and brings Google into the path — carrying ciphertext, but present.
 
 **Number detection is a heuristic.** A full parser such as libphonenumber is
-around 200 KB and would dominate a small extension. The recogniser here handles
-the common written forms, requires at least nine digits, and prefers to miss an
-unusual number rather than offer a wrong one. Order numbers and years are
+around 200 KB and would dominate a small extension. This recogniser handles the
+common written forms, requires at least nine digits, and prefers to miss an
+unusual number rather than offer a wrong one. Years and order numbers are
 rejected on purpose — see `extension/test/phone.test.js` for the exact cases.
+
+**Delivery addresses are not secrets.** Someone who learned your topic or
+device token could make your phone buzz. They could not make it show a number
+of their choosing: forged messages fail authentication and are dropped.
 
 **It is not a phone system.** No VoIP, no recording, no call log. It moves a
 number from one screen to another.
@@ -134,20 +142,18 @@ node extension/test/phone.test.js   # recogniser tests, no framework needed
 cd android && ./gradlew assembleDebug
 ```
 
-The Android app has no third-party runtime dependencies beyond AndroidX: the
-subscriber uses the JDK's own HTTP client, which keeps the build free of
-proprietary components.
-
-Layout:
-
 ```
-extension/     Chromium MV3 extension — detection, normalisation, publishing
-  src/phone.js       number recognition, shared by the page script and popup
+extension/
+  src/phone.js       number recognition, shared by page script and popup
+  src/crypto.js      AES-GCM encryption and the pairing format
   src/content.js     click interception and plain-text markup
   src/background.js  the only code that touches the network
-android/       Kotlin app — subscription, notification, dialer hand-off
-  SubscriberService.kt   the open connection and its reconnect logic
+android/
+  Crypto.kt              decryption; also the authentication check
+  SubscriberService.kt   the ntfy connection and its reconnect logic
+  PushService.kt         the Firebase receiver
   Notifications.kt       the two channels and the dial intent
+relay/                   optional; only for the Firebase transport
 ```
 
 ---

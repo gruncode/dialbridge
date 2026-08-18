@@ -53,6 +53,17 @@
                 android:value="Maintains the push subscription that delivers dial requests from the paired computer." />
         </service>
 
+        <!-- The Play Services transport. Present in every build, but only ever
+             reached when the app was built with a google-services.json and the
+             user chose Firebase during pairing. -->
+        <service
+            android:name=".PushService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
         <receiver
             android:name=".BootReceiver"
             android:exported="true">

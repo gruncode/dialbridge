@@ -2,11 +2,13 @@
 <resources>
     <string name="app_name">DialBridge</string>
 
-    <string name="intro">Click a phone number in your computer\'s browser and this phone opens its dialer with the number ready. Enter the same topic here and in the browser extension.</string>
+    <string name="intro">Click a phone number in your computer\'s browser and this phone opens its dialer with the number ready. Generate a pairing code below and paste it into the browser extension.</string>
 
-    <string name="label_topic">Topic</string>
-    <string name="hint_topic">tap Generate</string>
-    <string name="hint_topic_explain">A private channel name shared with the browser extension. Anyone who knows it can make this phone ring, so keep it to yourself.</string>
+    <string name="label_transport">Delivery</string>
+    <string name="transport_ntfy">This app\'s own connection (ntfy)</string>
+    <string name="transport_fcm">Google Play Services (Firebase)</string>
+    <string name="transport_explain_ntfy">The app keeps its own connection open. Nothing Google-owned is involved, and it works on phones without Play Services. Costs a little battery.</string>
+    <string name="transport_explain_fcm">Borrows the connection Google Play Services already maintains, so it costs almost no battery. Google routes the message, but the number inside it is encrypted and unreadable to them.</string>
 
     <string name="label_server">Server</string>
     <string name="hint_server">https://ntfy.sh</string>
@@ -14,19 +16,28 @@
     <string name="label_token">Access token</string>
     <string name="hint_token">optional</string>
 
-    <string name="action_generate">Generate</string>
-    <string name="action_copy">Copy</string>
+    <string name="label_relay">Relay address</string>
+    <string name="hint_relay">https://your-relay.example.com</string>
+    <string name="fcm_ready">Registered with Firebase.</string>
+    <string name="fcm_missing">Firebase is not available in this build. Rebuild with a google-services.json, or use the app\'s own connection.</string>
+
+    <string name="action_generate">Generate pairing code</string>
+    <string name="action_copy">Copy pairing code</string>
     <string name="action_start">Start listening</string>
     <string name="action_stop">Stop listening</string>
     <string name="action_battery">Allow running in the background</string>
     <string name="action_open_dialer">Open dialer</string>
+    <string name="action_delete_data">Delete everything this app stores</string>
 
     <string name="battery_explain">Android may stop the app to save power. Exempting it keeps calls arriving reliably.</string>
+
+    <string name="privacy_summary">This app stores a server address, a topic name, an encryption key and a Firebase token. It never stores the numbers you are sent, and sends nothing to anyone but the delivery service you chose.</string>
 
     <string name="status_listening">Listening for calls</string>
     <string name="status_reconnecting">Reconnecting…</string>
     <string name="status_stopped">Not listening</string>
-    <string name="status_needs_topic">Generate a topic first</string>
+    <string name="status_needs_topic">Generate a pairing code first</string>
+    <string name="status_push_mode">Waiting for pushes via Google Play Services</string>
 
     <string name="dial_request_title">Call this number</string>
 
@@ -35,6 +46,13 @@
     <string name="channel_service">Subscription status</string>
     <string name="channel_service_description">The quiet notice that the app is listening</string>
 
-    <string name="copied">Topic copied</string>
+    <string name="pairing_hint">Paste this into the browser extension. It contains your encryption key, so treat it like a password.</string>
+    <string name="pairing_incomplete">Fill in the settings above, then generate again.</string>
+    <string name="copied">Pairing code copied</string>
     <string name="saved">Saved</string>
+    <string name="deleted">Everything stored by this app has been deleted.</string>
+    <string name="delete_confirm_title">Delete everything?</string>
+    <string name="delete_confirm_message">This removes the pairing, the encryption key and all settings. Your browser will no longer be able to reach this phone until you pair again.</string>
+    <string name="delete_confirm_yes">Delete</string>
+    <string name="cancel">Cancel</string>
 </resources>

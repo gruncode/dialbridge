@@ -1,23 +1,28 @@
-// Service worker: the only part that talks to the network.
+// Service worker: the only part that touches the network.
 //
-// It publishes the chosen number to an ntfy topic. The phone is subscribed to
-// that same topic and opens its dialer when a message arrives. There is no
-// server of ours in the middle — ntfy.sh is a public relay, and anyone who
-// prefers can self-host it and point the extension at their own address.
+// It encrypts the number, then hands it to whichever transport the phone asked
+// for during pairing:
+//
+//   ntfy  — published straight to a topic. No server of ours involved.
+//   fcm   — posted to a small relay, which forwards it through Firebase Cloud
+//           Messaging. Needed because Firebase will not accept messages from a
+//           browser extension: sending requires a service-account credential
+//           that cannot be shipped to clients safely.
+//
+// Under both transports the payload is ciphertext. Neither the ntfy operator,
+// nor Google, nor the relay can read the number — only the paired phone holds
+// the key. That is what keeps a phone number, which is personal data, out of
+// everyone else's systems.
 
-importScripts("/src/phone.js");
+importScripts("/src/crypto.js", "/src/phone.js");
 
-// Defaults live in one place so the popup and the worker cannot disagree.
 const DEFAULTS = {
-  server: "https://ntfy.sh",
-  topic: "",
-  authToken: "",
+  pairing: null,        // decoded pairing object from the phone
   countryCode: "",
   markPlainText: true,
   enabled: true
 };
 
-/** Read the user's settings, filling in defaults for anything unset. */
 async function getSettings() {
   return chrome.storage.sync.get(DEFAULTS);
 }
@@ -29,66 +34,75 @@ async function badge(text, colour) {
   setTimeout(() => chrome.action.setBadgeText({ text: "" }), 2500);
 }
 
-/**
- * Publish one number to the configured topic.
- *
- * Priority 5 is ntfy's highest. It matters: the Android app is woken by this
- * message, and lower priorities can be delayed while the phone is dozing.
- */
-async function publish(e164) {
-  const settings = await getSettings();
-
-  if (!settings.topic) {
-    await badge("SET", "#b45309");
-    return { ok: false, error: "No topic configured" };
-  }
-
+/** Publish ciphertext to an ntfy topic. */
+async function sendViaNtfy(pairing, payload) {
   const headers = { "Content-Type": "application/json" };
-  if (settings.authToken) {
-    headers.Authorization = "Bearer " + settings.authToken;
-  }
+  if (pairing.a) headers.Authorization = "Bearer " + pairing.a;
 
-  const body = JSON.stringify({
-    topic: settings.topic,
-    message: e164,
-    title: "Call",
-    priority: 5,
-    tags: ["telephone_receiver"]
+  const response = await fetch(String(pairing.s).replace(/\/+$/, "") + "/", {
+    method: "POST",
+    headers,
+    body: JSON.stringify({
+      topic: pairing.c,
+      message: payload,
+      // Highest ntfy priority: the phone must be woken, not merely informed.
+      priority: 5
+    })
   });
 
-  try {
-    const response = await fetch(settings.server.replace(/\/+$/, "") + "/", {
-      method: "POST",
-      headers,
-      body
-    });
+  if (!response.ok) throw new Error("ntfy replied " + response.status);
+}
 
-    if (!response.ok) {
-      await badge("ERR", "#b91c1c");
-      return { ok: false, error: "Server replied " + response.status };
+/** Hand ciphertext to the relay, which forwards it through Firebase. */
+async function sendViaRelay(pairing, payload) {
+  const response = await fetch(String(pairing.r).replace(/\/+$/, ""), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ deviceToken: pairing.d, payload })
+  });
+
+  if (!response.ok) throw new Error("Relay replied " + response.status);
+}
+
+/** Encrypt a number and send it by whichever route the phone chose. */
+async function dispatch(e164) {
+  const settings = await getSettings();
+  const pairing = settings.pairing;
+
+  if (!pairing || !pairing.k) {
+    await badge("PAIR", "#b45309");
+    return { ok: false, error: "Not paired with a phone yet" };
+  }
+
+  try {
+    const payload = await DialBridgeCrypto.encryptNumber(pairing.k, e164);
+
+    if (pairing.t === "fcm") {
+      await sendViaRelay(pairing, payload);
+    } else {
+      await sendViaNtfy(pairing, payload);
     }
 
     await badge("OK", "#15803d");
     return { ok: true };
   } catch (error) {
-    // Almost always a wrong server address or no connectivity.
     await badge("ERR", "#b91c1c");
+    // The message text is shown in the popup only; nothing is logged, because
+    // logs of who you called are exactly what this design avoids creating.
     return { ok: false, error: String(error.message || error) };
   }
 }
 
-// Numbers arrive from the content script (a click) or from the popup (a test).
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message && message.type === "dial" && message.number) {
-    publish(message.number).then(sendResponse);
+    dispatch(message.number).then(sendResponse);
     return true; // keep the channel open for the async reply
   }
   return false;
 });
 
-// A right-click entry for numbers the page renders in a way we cannot detect —
-// inside a canvas, an image caption, or an unusual widget. The user selects the
-// text themselves and we normalise whatever they highlighted.
+// A right-click entry for numbers the page renders in a way the detector cannot
+// see — inside a canvas, an image caption, or an unusual widget.
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     id: "dialbridge-selection",
@@ -102,7 +116,7 @@ chrome.contextMenus.onClicked.addListener(async (info) => {
   const settings = await getSettings();
   const e164 = DialBridgePhone.toE164(info.selectionText, settings.countryCode);
   if (e164) {
-    await publish(e164);
+    await dispatch(e164);
   } else {
     await badge("?", "#b45309");
   }

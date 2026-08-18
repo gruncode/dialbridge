@@ -16,3 +16,10 @@ android/local.properties
 # OS noise
 .DS_Store
 Thumbs.db
+
+# Firebase configuration is per-project: each developer supplies their own.
+# It identifies your Firebase project and does not belong in a public repo.
+android/app/google-services.json
+
+# Relay dependencies
+relay/node_modules/

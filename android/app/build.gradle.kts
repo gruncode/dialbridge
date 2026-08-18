@@ -37,13 +37,25 @@ android {
     }
 }
 
+// Firebase is optional at build time. Drop your own google-services.json into
+// app/ and the plugin activates, enabling the Play Services transport; leave it
+// out and the app still builds and runs on the ntfy transport alone. That is
+// what keeps a single source tree publishable both on Google Play and on
+// F-Droid, which refuses proprietary dependencies.
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
+}
+
 dependencies {
-    // Deliberately minimal. No networking library: the subscriber uses the
-    // JDK's own HTTP client, which keeps the app small and free of any
-    // proprietary dependency, so it can be distributed through F-Droid.
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.11.0")
+
+    // The ntfy subscriber uses the JDK's own HTTP client — no networking
+    // library — so the only heavyweight dependency here is Firebase, and it is
+    // inert unless a google-services.json is present.
+    implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
+    implementation("com.google.firebase:firebase-messaging-ktx")
 
     testImplementation("junit:junit:4.13.2")
 }

@@ -1,23 +1,21 @@
-// Settings screen. Small enough to stay plain DOM code — no framework, so the
-// whole extension remains readable and reviewable without a build step.
+// Settings screen. Plain DOM code — the extension has no build step, so what
+// is reviewed here is exactly what runs.
 
 (function () {
   "use strict";
 
   var DEFAULTS = {
-    server: "https://ntfy.sh",
-    topic: "",
-    authToken: "",
+    pairing: null,
     countryCode: "",
     markPlainText: true,
     enabled: true
   };
 
-  var fields = {};
-  Object.keys(DEFAULTS).forEach(function (key) {
-    fields[key] = document.getElementById(key);
-  });
-
+  var pairingField = document.getElementById("pairing");
+  var pairedLine = document.getElementById("paired");
+  var countryField = document.getElementById("countryCode");
+  var markField = document.getElementById("markPlainText");
+  var enabledField = document.getElementById("enabled");
   var status = document.getElementById("status");
 
   function say(text, isError) {
@@ -25,45 +23,60 @@
     status.style.color = isError ? "#b91c1c" : "";
   }
 
-  /** Fill the form from stored settings. */
+  /** Describe the current pairing without ever showing the key itself. */
+  function describe(pairing) {
+    if (!pairing) return "Not paired.";
+    if (pairing.t === "fcm") {
+      return "Paired over Firebase, via " + hostOf(pairing.r) + ". Encrypted.";
+    }
+    return "Paired over ntfy, via " + hostOf(pairing.s) + ". Encrypted.";
+  }
+
+  function hostOf(url) {
+    try {
+      return new URL(url).host;
+    } catch (error) {
+      return "an unknown server";
+    }
+  }
+
   function load() {
     chrome.storage.sync.get(DEFAULTS, function (stored) {
-      Object.keys(DEFAULTS).forEach(function (key) {
-        var element = fields[key];
-        if (!element) return;
-        if (element.type === "checkbox") {
-          element.checked = Boolean(stored[key]);
-        } else {
-          element.value = stored[key] || "";
-        }
-      });
+      countryField.value = stored.countryCode || "";
+      markField.checked = Boolean(stored.markPlainText);
+      enabledField.checked = Boolean(stored.enabled);
+      pairedLine.textContent = describe(stored.pairing);
+      // The pairing box stays empty on purpose: the stored code contains the
+      // key, and there is no reason to put it back on screen.
+      pairingField.value = "";
     });
   }
 
-  /** Read the form back out, normalising what the user typed. */
-  function collect() {
-    return {
-      // A trailing slash here would produce a double slash in the request URL.
-      server: (fields.server.value || DEFAULTS.server).trim().replace(/\/+$/, ""),
-      // ntfy topics are path segments: anything else would silently 404.
-      topic: fields.topic.value.trim().replace(/[^A-Za-z0-9_-]/g, ""),
-      authToken: fields.authToken.value.trim(),
-      countryCode: fields.countryCode.value.replace(/\D/g, ""),
-      markPlainText: fields.markPlainText.checked,
-      enabled: fields.enabled.checked
-    };
-  }
-
   function save(onDone) {
-    var values = collect();
+    var values = {
+      countryCode: countryField.value.replace(/\D/g, ""),
+      markPlainText: markField.checked,
+      enabled: enabledField.checked
+    };
+
+    var typed = pairingField.value.trim();
+    if (typed) {
+      try {
+        values.pairing = DialBridgeCrypto.decodePairing(typed);
+      } catch (error) {
+        say(error.message, true);
+        return;
+      }
+    }
+
     chrome.storage.sync.set(values, function () {
-      // Show the cleaned-up values, so the user sees what was actually stored
-      // rather than what they typed.
-      fields.server.value = values.server;
-      fields.topic.value = values.topic;
-      fields.countryCode.value = values.countryCode;
+      countryField.value = values.countryCode;
+      if (values.pairing) {
+        pairingField.value = "";
+        pairedLine.textContent = describe(values.pairing);
+      }
       say("Saved.");
-      if (onDone) onDone(values);
+      if (onDone) onDone();
     });
   }
 
@@ -71,14 +84,10 @@
     save();
   });
 
-  // The test sends a harmless, obviously fake number: it proves the path from
-  // browser to phone without anyone's real line being dialled by accident.
+  // The test sends an obviously fake number, so the path from browser to phone
+  // can be proved without anyone's real line being dialled by accident.
   document.getElementById("test").addEventListener("click", function () {
-    save(function (values) {
-      if (!values.topic) {
-        say("Set a topic first — the phone app shows one.", true);
-        return;
-      }
+    save(function () {
       say("Sending…");
       chrome.runtime.sendMessage(
         { type: "dial", number: "+15555550123" },
@@ -92,6 +101,15 @@
           }
         }
       );
+    });
+  });
+
+  // Erasure, on the browser side: removes the delivery address and the key, so
+  // this computer can no longer reach the phone and holds nothing about it.
+  document.getElementById("forget").addEventListener("click", function () {
+    chrome.storage.sync.remove("pairing", function () {
+      pairedLine.textContent = describe(null);
+      say("Pairing deleted from this browser.");
     });
   });
 

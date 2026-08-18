@@ -133,12 +133,26 @@ class SubscriberService : Service() {
         // ntfy also sends "open" and "keepalive" events down the same stream.
         if (event.optString("event") != "message") return
 
-        val number = event.optString("message").trim()
+        val payload = event.optString("message").trim()
+        if (payload.isEmpty()) return
 
-        // Anyone who knows the topic can publish to it, so never trust the
-        // payload: only something shaped like a phone number gets through.
+        val secret = Prefs.secret(this)
+        if (secret.isBlank()) {
+            Log.w(TAG, "message arrived before pairing; ignored")
+            return
+        }
+
+        // The topic is public knowledge to anyone who learns its name, so the
+        // decryption step is also the authentication step: a message that does
+        // not verify was not written by the paired browser.
+        val number = Crypto.decrypt(secret, payload)
+        if (number == null) {
+            Log.w(TAG, "message failed authentication; ignored")
+            return
+        }
+
         if (!NUMBER_SHAPE.matches(number)) {
-            Log.w(TAG, "ignored a message that was not a phone number")
+            Log.w(TAG, "decrypted content was not a phone number; ignored")
             return
         }
 
